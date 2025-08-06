@@ -12,6 +12,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
+import Cart from "./cart";
 
 export const Header = () => {
   const { data: session } = authClient.useSession();
@@ -75,6 +76,7 @@ export const Header = () => {
             </div>
           </SheetContent>
         </Sheet>
+        <Cart />
       </div>
     </header>
   );
