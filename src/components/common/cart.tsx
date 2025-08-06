@@ -1,8 +1,10 @@
+"use client";
+
 import { ShoppingBasketIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
-const Cart = () => {
+export const Cart = () => {
   return (
     <Sheet>
       <SheetTrigger>
@@ -14,5 +16,3 @@ const Cart = () => {
     </Sheet>
   );
 };
-
-export default Cart;
