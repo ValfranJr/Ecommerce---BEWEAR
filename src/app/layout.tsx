@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import ReactQueryProvider from "@/providers/react-query";
 
 export const metadata: Metadata = {
   title: "Be Wear",
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <ReactQueryProvider>{children}</ReactQueryProvider>
         <Toaster />
       </body>
     </html>
