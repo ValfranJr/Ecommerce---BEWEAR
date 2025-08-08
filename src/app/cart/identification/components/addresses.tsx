@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { PatternFormat } from "react-number-format";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { toast } from "sonner";
+import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
 
 const formSchema = z.object({
   email: z.email({ message: "E-mail inválido" }),
@@ -56,11 +57,12 @@ const Addresses = () => {
     mode: "onChange",
   });
 
+  const { data: addresses } = useShippingAddresses();
   const { mutateAsync, isPending } = useCreateShippingAddress();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (isPending) return;
-    await mutateAsync(values);
+    const created = await mutateAsync(values);
     toast.success("Endereço salvo com sucesso");
     form.reset({
       email: "",
@@ -75,6 +77,9 @@ const Addresses = () => {
       city: "",
       state: "",
     });
+    if (created?.id) {
+      setSelectedAddress(created.id);
+    }
   };
 
   return (
@@ -87,9 +92,24 @@ const Addresses = () => {
           value={selectedAddress ?? undefined}
           onValueChange={setSelectedAddress}
         >
+          {addresses?.map((addr) => (
+            <Card key={addr.id} className="mb-3">
+              <CardContent>
+                <div className="flex items-center space-x-2 py-4">
+                  <RadioGroupItem value={addr.id} id={addr.id} />
+                  <Label htmlFor={addr.id} className="flex-1 cursor-pointer">
+                    {addr.recipientName}, {addr.street}, {addr.number}
+                    {addr.complement ? `, ${addr.complement}` : ""},{" "}
+                    {addr.neighborhood}, {addr.city} - {addr.state},{" "}
+                    {addr.zipCode}
+                  </Label>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
           <Card>
             <CardContent>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 py-4">
                 <RadioGroupItem value="add_new" id="add_new" />
                 <Label htmlFor="add_new">Adicionar novo endereço</Label>
               </div>
