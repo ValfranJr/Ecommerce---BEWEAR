@@ -6,27 +6,31 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 const FinishOrderButton = () => {
-  const [sucessDialogisOpen, setSuccessDialogisOpen] = useState(true);
-  const { mutate: finishOrder, isPending } = useFinishOrder();
+  const [sucessDialogisOpen, setSuccessDialogisOpen] = useState(false);
+  const finishOrder = useFinishOrder();
+  const handleFinishOrder = () => {
+    finishOrder.mutate();
+    setSuccessDialogisOpen(true);
+  };
 
   return (
     <>
       <Button
         className="w-full rounded-full"
         size="lg"
-        onClick={() => finishOrder()}
-        disabled={isPending}
+        onClick={handleFinishOrder}
+        disabled={finishOrder.isPending}
       >
-        {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+        {finishOrder.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         Finalizar compra
       </Button>
       <Dialog open={sucessDialogisOpen} onOpenChange={setSuccessDialogisOpen}>
@@ -46,8 +50,13 @@ const FinishOrderButton = () => {
             na aba "Meus pedidos".
           </DialogDescription>
           <DialogFooter>
-            <Button size="lg" className="w-full rounded-full" variant="outline">
-              Voltar para a loja
+            <Button
+              size="lg"
+              className="w-full rounded-full"
+              variant="outline"
+              asChild
+            >
+              <Link href="/">Voltar para a loja</Link>
             </Button>
             <Button size="lg" className="w-full rounded-full">
               Ver meus pedidos

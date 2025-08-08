@@ -1,9 +1,15 @@
 "use server";
 
 import { db } from "@/db";
-import { cartTable, orderItemTable, orderTable } from "@/db/schema";
+import {
+  cartItemTable,
+  cartTable,
+  orderItemTable,
+  orderTable,
+} from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, or } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 export const finishOrder = async () => {
@@ -35,10 +41,25 @@ export const finishOrder = async () => {
     0,
   );
   await db.transaction(async (tx) => {
+    if (!cart.shippingAddress) {
+      throw new Error("Shipping address not found");
+    }
     const [order] = await tx
       .insert(orderTable)
       .values({
-        ...cart.shippingAddress!,
+        recipientName: cart.shippingAddress.recipientName,
+        street: cart.shippingAddress.street,
+        number: cart.shippingAddress.number,
+        complement: cart.shippingAddress.complement,
+        neighborhood: cart.shippingAddress.neighborhood,
+        city: cart.shippingAddress.city,
+        state: cart.shippingAddress.state,
+        zipCode: cart.shippingAddress.zipCode,
+        country: cart.shippingAddress.country,
+        phone: cart.shippingAddress.phone,
+        email: cart.shippingAddress.email,
+        cpfOrCnpj: cart.shippingAddress.cpfOrCnpj,
+
         userId: session.user.id,
         totalPriceInCents,
         shippingAddressId: cart.shippingAddress!.id,
@@ -56,5 +77,6 @@ export const finishOrder = async () => {
       }));
     await tx.insert(orderItemTable).values(orderItemsPayload);
     await tx.delete(cartTable).where(eq(cartTable.userId, session.user.id));
+    await tx.delete(cartItemTable).where(eq(cartItemTable.cartId, cart.id));
   });
 };
