@@ -1,15 +1,18 @@
+import Footer from "@/components/common/footer";
+import { Header } from "@/components/common/header";
 import { db } from "@/db";
-import { cartTable, shippingAddressTable } from "@/db/schema";
+import { shippingAddressTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { Header } from "@/components/common/header";
-import Addresses from "./components/addresses";
+import { redirect } from "next/navigation";
 import CartSummary from "../components/cart-summary";
-import Footer from "@/components/common/footer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatAddress } from "../helpers/address";
+import Addresses from "../identification/components/addresses";
+import { Button } from "@/components/ui/button";
 
-const IdentificationPage = async () => {
+const ConfirmationPage = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -43,15 +46,28 @@ const IdentificationPage = async () => {
     (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
     0,
   );
-
+  if (!cart.shippingAddress) {
+    redirect("/cart/identification");
+  }
   return (
     <div>
       <Header />
       <div className="space-y-4 px-5">
-        <Addresses
-          shippingAddresses={shippingAddresses}
-          defaultShippingAddressId={cart.shippingAddress?.id || null}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Confirmação</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Card>
+              <CardContent>
+                <p className="text-sm">{formatAddress(cart.shippingAddress)}</p>
+              </CardContent>
+            </Card>
+            <Button className="w-full rounded-full" size="lg">
+              Finalizar compra
+            </Button>
+          </CardContent>
+        </Card>
         <CartSummary
           subtotalInCents={cartTotalPriceInCents}
           totalInCents={cartTotalPriceInCents}
@@ -72,4 +88,4 @@ const IdentificationPage = async () => {
   );
 };
 
-export default IdentificationPage;
+export default ConfirmationPage;

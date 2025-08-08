@@ -10,7 +10,7 @@ export const useShippingAddresses = (params?: {
 }) => {
   return useQuery({
     queryKey: getShippingAddressesQueryKey(),
-    queryFn: () => getUserAddresses(),
+    queryFn: getUserAddresses,
     initialData: params?.initialData,
   });
 };
