@@ -18,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PatternFormat } from "react-number-format";
+import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.email({ message: "E-mail inválido" }),
@@ -54,8 +56,25 @@ const Addresses = () => {
     mode: "onChange",
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const { mutateAsync, isPending } = useCreateShippingAddress();
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (isPending) return;
+    await mutateAsync(values);
+    toast.success("Endereço salvo com sucesso");
+    form.reset({
+      email: "",
+      fullName: "",
+      cpf: "",
+      phone: "",
+      zipCode: "",
+      address: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+    });
   };
 
   return (
@@ -281,7 +300,9 @@ const Addresses = () => {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button type="submit">Salvar endereço</Button>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? "Salvando..." : "Salvar endereço"}
+                  </Button>
                 </div>
               </form>
             </Form>
