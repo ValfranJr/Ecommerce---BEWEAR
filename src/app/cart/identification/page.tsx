@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Header } from "@/components/common/header";
 import Addresses from "./components/addresses";
+import CartSummary from "../components/cart-summary";
+import Footer from "@/components/common/footer";
 
 const IdentificationPage = async () => {
   const session = await auth.api.getSession({
@@ -37,16 +39,34 @@ const IdentificationPage = async () => {
     where: eq(shippingAddressTable.userId, session?.user.id),
   });
 
+  const cartTotalPriceInCents = cart.items.reduce(
+    (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
+    0,
+  );
+
   return (
-    <>
+    <div className="space-y-12">
       <Header />
-      <div className="px-">
+      <div className="space-y-4 px-5">
         <Addresses
           shippingAddresses={shippingAddresses}
           defaultShippingAddressId={cart.shippingAddress?.id || null}
         />
+        <CartSummary
+          subtotalInCents={cartTotalPriceInCents}
+          totalInCents={cartTotalPriceInCents}
+          products={cart.items.map((item) => ({
+            id: item.productVariant.id,
+            name: item.productVariant.product.name,
+            variantName: item.productVariant.name,
+            priceInCents: item.productVariant.priceInCents,
+            imageUrl: item.productVariant.imageUrl,
+            quantity: item.quantity,
+          }))}
+        />
       </div>
-    </>
+      <Footer />
+    </div>
   );
 };
 

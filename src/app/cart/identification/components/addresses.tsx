@@ -26,8 +26,7 @@ import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useCart } from "@/hooks/queries/use-cart";
-import {useShippingAddresses} from "@/hooks/queries/use-shipping-addresses";
-
+import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
 
 const formSchema = z.object({
   email: z.email("E-mail inválido"),
@@ -106,7 +105,9 @@ const Addresses = ({
       await updateCartShippingAddressMutation.mutateAsync({
         shippingAddressId: selectedAddress,
       });
-      toast.success("Endereço selecionado para entrega!");
+      toast.success("Endereço selecionado para entrega!", {
+        position: "top-center",
+      });
       router.push("/cart/confirmation");
     } catch (error) {
       toast.error("Erro ao selecionar endereço. Tente novamente.");
@@ -145,7 +146,12 @@ const Addresses = ({
                     <div className="flex-1">
                       <Label htmlFor={address.id} className="cursor-pointer">
                         <div>
-                          <p className="text-sm"></p>
+                          <p className="text-sm">
+                            {address.recipientName}, {address.street},
+                            {address.number}, {address.complement}
+                            {address.neighborhood}, {address.city},
+                            {address.state}, {address.zipCode}
+                          </p>
                         </div>
                       </Label>
                     </div>
