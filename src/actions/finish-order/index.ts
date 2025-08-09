@@ -8,15 +8,14 @@ import {
   orderTable,
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { eq, or } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
 export const finishOrder = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  if (!session?.user) {
+  if (!session) {
     throw new Error("Unauthorized");
   }
   const cart = await db.query.cartTable.findFirst({
@@ -40,6 +39,7 @@ export const finishOrder = async () => {
     (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
     0,
   );
+  let orderId: string | undefined;
   await db.transaction(async (tx) => {
     if (!cart.shippingAddress) {
       throw new Error("Shipping address not found");
@@ -68,6 +68,7 @@ export const finishOrder = async () => {
     if (!order) {
       throw new Error("Failed to create order");
     }
+    orderId = order.id;
     const orderItemsPayload: Array<typeof orderItemTable.$inferInsert> =
       cart.items.map((item) => ({
         orderId: order.id,
@@ -76,7 +77,11 @@ export const finishOrder = async () => {
         priceInCents: item.productVariant.priceInCents,
       }));
     await tx.insert(orderItemTable).values(orderItemsPayload);
-    await tx.delete(cartTable).where(eq(cartTable.userId, session.user.id));
+    await tx.delete(cartTable).where(eq(cartTable.id, cart.id));
     await tx.delete(cartItemTable).where(eq(cartItemTable.cartId, cart.id));
   });
+  if (!orderId) {
+    throw new Error("Failed to create order");
+  }
+  return { orderId };
 };
