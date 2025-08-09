@@ -31,7 +31,7 @@ const Orders = ({ orders }: OrdersProps) => {
   return (
     <div className="space-y-4">
       {orders.map((order) => (
-        <Card>
+        <Card key={order.id}>
           <CardContent>
             <Accordion type="single" key={order.id} collapsible>
               <AccordionItem value="item-1">
