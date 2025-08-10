@@ -63,11 +63,16 @@ const CartSummary = ({
                 <p className="text-muted-foreground text-xs font-medium">
                   {product.variantName}
                 </p>
+                {product.quantity && (
+                  <p className="text-muted-foreground text-xs">
+                    {product.quantity} x {product.name}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex flex-col items-end justify-center gap-2">
               <p className="text-sm font-bold">
-                {formatCentsToBRL(product.priceInCents)}
+                {formatCentsToBRL(product.priceInCents * product.quantity)}
               </p>
             </div>
           </div>

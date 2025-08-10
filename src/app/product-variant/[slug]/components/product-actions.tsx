@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import AddToCartButton from "./add-to-cart-button";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { useAddCartProduct } from "@/hooks/mutations/use-add-product-to-cart";
+import { useRouter } from "next/navigation";
 
 interface ProductActionsProps {
   productVariantId: string;
@@ -11,6 +13,8 @@ interface ProductActionsProps {
 
 const ProductActions = ({ productVariantId }: ProductActionsProps) => {
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
+  const { mutate: addToCart, isPending } = useAddCartProduct();
 
   const handleDecrement = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
@@ -37,8 +41,23 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
       </div>
       <div className="flex flex-col space-y-4 px-5">
         {/* Botões */}
-        <AddToCartButton productVariantId={productVariantId} quantity={quantity} />
-        <Button className="rounded-full" size="lg">
+        <AddToCartButton
+          productVariantId={productVariantId}
+          quantity={quantity}
+        />
+        <Button
+          className="rounded-full"
+          size="lg"
+          disabled={isPending}
+          onClick={() =>
+            addToCart(
+              { productVariantId, quantity },
+              {
+                onSuccess: () => router.push("/cart/identification"),
+              },
+            )
+          }
+        >
           Comprar agora
         </Button>
       </div>
