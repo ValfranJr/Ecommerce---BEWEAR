@@ -17,12 +17,14 @@ import { Separator } from "../ui/separator";
 import { formatCentsToBRL } from "@/helpers/money";
 import { useCart } from "@/hooks/queries/use-cart";
 import Link from "next/link";
+import { useCartSheet } from "@/providers/cart-sheet";
 
 export const Cart = () => {
   const { data: cart } = useCart();
+  const { isOpen, setOpen } = useCartSheet();
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon">
           <ShoppingBasketIcon />

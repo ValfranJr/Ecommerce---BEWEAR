@@ -4,6 +4,7 @@ import { addProductToCart } from "@/actions/add-cart-product";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useCartSheet } from "@/providers/cart-sheet";
 
 interface AddToCartButtonProps {
   productVariantId: string;
@@ -15,15 +16,17 @@ const AddToCartButton = ({
   quantity,
 }: AddToCartButtonProps) => {
   const queryClient = useQueryClient();
+  const { openCart } = useCartSheet();
   const { mutate, isPending } = useMutation({
     mutationKey: ["addProductToCart", productVariantId, quantity],
-    mutationFn:  () => 
-        addProductToCart({
-          productVariantId,
-          quantity,
-        }),
+    mutationFn: () =>
+      addProductToCart({
+        productVariantId,
+        quantity,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries( { queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      openCart();
     },
   });
   return (
