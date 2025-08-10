@@ -32,10 +32,7 @@ const MyOrdersPage = async () => {
     <>
       <Header />
       <div className="px-4">
-        <h1>Meus pedidos</h1>
-        <p>
-          Aqui você pode ver os pedidos que fez e acompanhar o status deles.
-        </p>
+        <h1 className="mb-4 text-lg font-semibold">Meus Pedidos</h1>
         <Orders
           orders={orders.map((order) => ({
             id: order.id,
