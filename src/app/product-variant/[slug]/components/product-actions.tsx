@@ -6,6 +6,8 @@ import { MinusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useAddCartProduct } from "@/hooks/mutations/use-add-product-to-cart";
 import { useRouter } from "next/navigation";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import LoginPopup from "@/components/ui/login-popup";
 
 interface ProductActionsProps {
   productVariantId: string;
@@ -15,6 +17,7 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
   const { mutate: addToCart, isPending } = useAddCartProduct();
+  const { requireAuth, showLoginPopup, setShowLoginPopup } = useRequireAuth();
 
   const handleDecrement = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
@@ -40,7 +43,6 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
         </div>
       </div>
       <div className="flex flex-col space-y-4 px-5">
-        {/* Botões */}
         <AddToCartButton
           productVariantId={productVariantId}
           quantity={quantity}
@@ -50,16 +52,19 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
           size="lg"
           disabled={isPending}
           onClick={() =>
-            addToCart(
-              { productVariantId, quantity },
-              {
-                onSuccess: () => router.push("/cart/identification"),
-              },
+            requireAuth(() =>
+              addToCart(
+                { productVariantId, quantity },
+                {
+                  onSuccess: () => router.push("/cart/identification"),
+                },
+              ),
             )
           }
         >
           Comprar agora
         </Button>
+        <LoginPopup open={showLoginPopup} onOpenChange={setShowLoginPopup} />
       </div>
     </>
   );
